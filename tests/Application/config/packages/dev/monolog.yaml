@@ -1,0 +1,13 @@
+monolog:
+    handlers:
+        main:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+        alert:
+            type: stream
+            path: "%kernel.logs_dir%/alert.log"
+            level: alert
+        firephp:
+            type: firephp
+            level: info

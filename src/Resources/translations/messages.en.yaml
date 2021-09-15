@@ -1,0 +1,9 @@
+paygreen:
+    sylius_plugin:
+        form:
+            public_key: Public key
+            private_key: Private key
+            payment_type:
+                name: Payment type
+                CB: Bank card
+                TRD: Dematerialized Restaurant Tickets
