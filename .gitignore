@@ -1,0 +1,5 @@
+/vendor
+/tests
+/bin
+node_modules
+/.idea

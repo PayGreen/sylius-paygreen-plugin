@@ -1,0 +1,4 @@
+suites:
+    main:
+        namespace: Paygreen\SyliusPatgreenPlugin
+        psr4_prefix: Paygreen\SyliusPatgreenPlugin

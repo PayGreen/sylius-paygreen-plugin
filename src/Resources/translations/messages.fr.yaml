@@ -1,0 +1,9 @@
+paygreen:
+    sylius_plugin:
+        form:
+            public_key: Clé publique
+            private_key: Clé privée
+            payment_type:
+                name: Types de payment
+                CB: Carte bancaire
+                TRD: Tickets restaurant dématérialisés
