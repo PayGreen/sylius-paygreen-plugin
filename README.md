@@ -33,6 +33,7 @@ In the PaygreenBridge.php, you can configure the URL_API_SANDBOX or URL_API_PROD
 ### Installation:
 
 ```bash
+$ composer install
 $ (cd tests/Application && yarn install)
 $ (cd tests/Application && yarn build)
 $ (cd tests/Application && APP_ENV=test bin/console assets:install public)

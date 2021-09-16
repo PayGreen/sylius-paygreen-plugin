@@ -19,7 +19,7 @@
         "php": "^7.3",
         "sylius/sylius": "~1.8.0 || ~1.9.0",
         "symfony/monolog-bundle": "^3.7",
-      "ext-json": "*"
+        "ext-json": "*"
     },
     "conflict": {
         "api-platform/core": "^2.6"
