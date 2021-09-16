@@ -1,6 +1,7 @@
 {
     "name": "paygreen/sylius-paygreen-plugin",
     "type": "sylius-plugin",
+    "version": "0.0.2",
     "description": "Paygreen plugin for Sylius.",
     "keywords": [
         "sylius",
