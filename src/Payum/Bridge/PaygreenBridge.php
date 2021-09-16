@@ -95,7 +95,7 @@ final class PaygreenBridge
             "Accept" => "application/json",
             "Content-Type" => "application/json",
             "Cache-Control" => "no-cache",
-            "User-Agent"=> "Sylius/".$syliusVersion." php:".$phpVersion.";module:".PaygreenBridge::SYLIUS_PAYGREEN_VERSION,
+            "User-Agent"=> "Sylius/".$syliusVersion." php:".$phpVersion.";module:".$this->getModuleVersion(),
             "Authorization" => "Bearer ".$this->paymentRequest->getPrivateKey()
         );
     }
@@ -108,5 +108,22 @@ final class PaygreenBridge
     public function getBaseUrl()
     {
         return PaygreenBridge::URL_API_SANDBOX.$this->paymentRequest->getPublicKey();
+    }
+
+    /**
+     * Get the module version from the composer.json
+     *
+     * @return string
+     */
+    public function getModuleVersion() {
+        $filename = __DIR__."/../../../composer.json";
+        $version = "undefined";
+        if (($filecontent = @file_get_contents($filename)) !== false) {
+            $composerData = json_decode($filecontent, true);
+            if(array_key_exists("version",$composerData)) {
+                $version = $composerData["version"];
+            }
+        }
+        return $version;
     }
 }
