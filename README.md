@@ -25,7 +25,7 @@ Connect your Paygreen account to the module with your public key and your privat
 
 You will have to select Bank card or Dematerialized Restaurant Tickets according to your needs. 
 
-In the PaygreenBridge.php, you can configure the URL_API_SANDBOX or URL_API_PRODUCTION depending of your customer account.
+In the .env file, you have to configure the PAYGREEN_URL_API (production or sandbox) depending of your customer account.
 </p>
 
 ## Contribution
