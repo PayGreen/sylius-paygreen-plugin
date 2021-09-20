@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Bridge;
 
+
 use Paygreen\SyliusPaygreenPlugin\Payum\PaygreenSdk;
 use Sylius\Bundle\CoreBundle\Application\Kernel as SyliusKernel;
 use Sylius\Component\Core\Model\OrderInterface;
+use http\Exception\UnexpectedValueException;
 
 final class PaygreenBridge
 {
-
-    const URL_API_SANDBOX = "https://sandbox.paygreen.fr/api/";
-    const URL_API_PRODUCTION = "https://paygreen.fr/api/";
-    const SYLIUS_PAYGREEN_VERSION = "1.0.0";
-
     /** @var PaygreenSdk */
     private $paymentRequest;
 
@@ -36,10 +33,8 @@ final class PaygreenBridge
      * @param string $type
      * @param string $afterUrl
      * @param string $targetUrl
-     *
-     * @return array
      */
-    public function createPaymentForm($order, $amount, $type, $afterUrl, $targetUrl)
+    public function createPaymentForm($order, $amount, $type, $afterUrl, $targetUrl) : array
     {
         if($order->getCustomer() === null || $order->getBillingAddress() === null) {
             return array();
@@ -84,10 +79,8 @@ final class PaygreenBridge
 
     /**
      * Creates the request header.
-     *
-     * @return array
      */
-    public function createHeader()
+    public function createHeader() : array
     {
         $phpVersion = phpversion();
         $syliusVersion = SyliusKernel::VERSION;
@@ -102,20 +95,22 @@ final class PaygreenBridge
 
     /**
      * Creates the request base url. You can change the URL_API_SANDBOX to URL_API_PRODUCTION depending of your customer account.
-     *
-     * @return string
      */
-    public function getBaseUrl()
+    public function getBaseUrl() : string
     {
-        return PaygreenBridge::URL_API_SANDBOX.$this->paymentRequest->getPublicKey();
+        $base = getenv('PAYGREEN_URL_API');
+        if ($base === false) {
+            throw new UnexpectedValueException('PAYGREEN_URL_API does not exist.');
+        }
+
+        return $base.$this->paymentRequest->getPublicKey();
     }
 
     /**
      * Get the module version from the composer.json
-     *
-     * @return string
      */
-    public function getModuleVersion() {
+    public function getModuleVersion() : string
+    {
         $filename = __DIR__."/../../../composer.json";
         $version = "undefined";
         if (($filecontent = @file_get_contents($filename)) !== false) {

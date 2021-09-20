@@ -1,7 +1,7 @@
 {
     "name": "paygreen/sylius-paygreen-plugin",
     "type": "sylius-plugin",
-    "version": "0.0.2",
+    "version": "1.0.0",
     "description": "Paygreen plugin for Sylius.",
     "keywords": [
         "sylius",
@@ -20,7 +20,8 @@
         "php": "^7.3",
         "sylius/sylius": "~1.8.0 || ~1.9.0",
         "symfony/monolog-bundle": "^3.7",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-http": "*"
     },
     "conflict": {
         "api-platform/core": "^2.6"
