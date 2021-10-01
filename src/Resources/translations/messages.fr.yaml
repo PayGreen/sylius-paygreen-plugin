@@ -6,4 +6,4 @@ paygreen:
             payment_type:
                 name: Types de payment
                 CB: Carte bancaire
-                TRD: Tickets restaurant dématérialisés
+                TRD: Titres-Restaurant Dématérialisés
