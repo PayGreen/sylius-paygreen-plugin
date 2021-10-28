@@ -7,3 +7,4 @@ paygreen:
                 name: Types de payment
                 CB: Carte bancaire
                 TRD: Titres-Restaurant Dématérialisés
+            meal_voucher_compatible: Compatible Titres-Restaurant Dématérialisés
