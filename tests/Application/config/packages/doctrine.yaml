@@ -12,3 +12,14 @@ doctrine:
         charset: UTF8
 
         url: '%env(resolve:DATABASE_URL)%'
+
+    orm:
+        auto_generate_proxy_classes: '%kernel.debug%'
+        auto_mapping: true
+        mappings:
+            Tests\Paygreen\SyliusPaygreenPlugin\App:
+                is_bundle: false
+                type: annotation
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'Tests\Paygreen\SyliusPaygreenPlugin\App\Entity'
+                alias: Tests\Paygreen\SyliusPaygreenPlugin\App

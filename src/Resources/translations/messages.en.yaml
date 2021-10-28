@@ -7,3 +7,4 @@ paygreen:
                 name: Payment type
                 CB: Bank card
                 TRD: Meal Voucher
+            meal_voucher_compatible: Meal Voucher compatible

@@ -25,5 +25,9 @@
             <argument type="service" id="monolog.logger" />
             <tag name="payum.action" factory="sylius_payment" alias="payum.notify.capture" />
         </service>
+
+        <service id="Paygreen\SyliusPaygreenPlugin\Form\Extension\ProductVariantTypeExtension">
+            <tag name="form.type_extension" extended_type="Sylius\Bundle\ProductBundle\Form\Type\ProductVariantType" />
+        </service>
     </services>
 </container>

@@ -11,22 +11,43 @@
 
 <h1 align="center">Sylius payment module with <a target="_blank" href="https://paygreen.io/">Paygreen</a></h1>
 
-## Quickstart Installation
+## Installation
+
+Require the plugin :
 
 ```bash
-     composer require paygreen/sylius-paygreen-plugin
+composer require paygreen/sylius-paygreen-plugin
 ```
+
+1. Your `ProductVariant` entity needs to implement de MealVoucherAwareInterface and use the MealVoucherAwareTrait.
+2. Your `Order` entity needs to implement de MealVoucherableInterface and use the MealVoucherableTrait.
+3. You need to run a diff of your doctrine's migrations: `bin/console doctrine:migrations:diff`. Don't forget to run it! (`bin/console doctrine:migrations:migrate`)
+4. Copy the template (we update the Product and ProductVariant forms):
+   ```
+   mkdir -p templates/bundles/SyliusAdminBundle
+   cp -Rv vendor/paygreen/sylius-paygreen-plugin/src/Resources/views/SyliusAdminBundle/ templates/bundles/SyliusAdminBundle/
+   ```
+
 ## Configuration
 
-<p>
+![Gateway configuration](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/gateway_configuration.png?raw=true)
+
 The module configuration is located in the Payment method section of the admin panel.
 
 Connect your Paygreen account to the module with your public key and your private key.
 
-You will have to select Bank card or Dematerialized Restaurant Tickets according to your needs. 
+You will have to select `Bank card` or `Meal Voucher` according to your needs. 
 
-In the .env file, you have to configure the PAYGREEN_URL_API (production or sandbox) depending of your customer account.
-</p>
+In the `.env` file, you have to configure the `PAYGREEN_URL_API` (production or sandbox) depending on your customer account.
+
+```
+PAYGREEN_URL_API=https://paygreen.fr/api/
+```
+
+## Cookbook
+
+- [How to display the amount payable in meal voucher in the basket?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-display-the-amount-payable-in-meal-voucher-in-the-basket.md)
+- [How to display if the product is payable in meal voucher or not?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-display-if-the-product-is-payable-in-meal-voucher-or-not.md)
 
 ## Contribution
 

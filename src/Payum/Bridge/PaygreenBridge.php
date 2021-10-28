@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Bridge;
 
 
+use Paygreen\SyliusPaygreenPlugin\Entity\MealVoucherableInterface;
 use Paygreen\SyliusPaygreenPlugin\Payum\PaygreenSdk;
 use Sylius\Bundle\CoreBundle\Application\Kernel as SyliusKernel;
 use Sylius\Component\Core\Model\OrderInterface;
@@ -33,15 +34,20 @@ final class PaygreenBridge
      * @param string $type
      * @param string $afterUrl
      * @param string $targetUrl
+     * @return array
      */
-    public function createPaymentForm($order, $amount, $type, $afterUrl, $targetUrl) : array
+    public function createPaymentForm(OrderInterface $order, int $amount, string $type, string $afterUrl, string $targetUrl) : array
     {
-        if($order->getCustomer() === null || $order->getBillingAddress() === null) {
-            return array();
+        $customer = $order->getCustomer();
+        $billingAddress = $order->getBillingAddress();
+
+        if ($customer === null || $billingAddress === null) {
+            return [];
         }
-        return array(
+
+        $requestData = [
             "headers" => $this->createHeader(),
-            "json" => array(
+            "json" => [
                 "orderId" => "{$order->getNumber()}-{$order->getPayments()->count()}",
                 "amount" => $amount,
                 "currency" => "EUR",
@@ -49,32 +55,41 @@ final class PaygreenBridge
                 "mode" => "CASH",
                 "returned_url" => $afterUrl,
                 "notified_url" => $targetUrl,
-                "buyer" => array(
-                    "id" => $order->getCustomer()->getId(),
-                    "lastName" => $order->getCustomer()->getLastName(),
-                    "firstName" => $order->getCustomer()->getFirstName(),
-                    "email" => $order->getCustomer()->getEmail(),
-                    "country" => $order->getBillingAddress()->getCountryCode(),
-                    "companyName" => $order->getBillingAddress()->getCompany()
-                ),
-                "billingAddress" => array(
-                    "lastName" => $order->getBillingAddress()->getLastName(),
-                    "firstName" => $order->getBillingAddress()->getFirstName(),
-                    "address" => $order->getBillingAddress()->getStreet(),
-                    "zipCode" => $order->getBillingAddress()->getPostcode(),
-                    "city" => $order->getBillingAddress()->getCity(),
-                    "country" => $order->getBillingAddress()->getCountryCode()
-                ),
-                "shippingAddress" => array(
-                    "lastName" => $order->getBillingAddress()->getLastName(),
-                    "firstName" => $order->getBillingAddress()->getFirstName(),
-                    "address" => $order->getBillingAddress()->getStreet(),
-                    "zipCode" => $order->getBillingAddress()->getPostcode(),
-                    "city" => $order->getBillingAddress()->getCity(),
-                    "country" => $order->getBillingAddress()->getCountryCode()
-                )
-            )
-        );
+                "buyer" => [
+                    "id" => $customer->getId(),
+                    "lastName" => $customer->getLastName(),
+                    "firstName" => $customer->getFirstName(),
+                    "email" => $customer->getEmail(),
+                    "country" => $billingAddress->getCountryCode(),
+                    "companyName" => $billingAddress->getCompany()
+                ],
+                "billingAddress" => [
+                    "lastName" => $billingAddress->getLastName(),
+                    "firstName" => $billingAddress->getFirstName(),
+                    "address" => $billingAddress->getStreet(),
+                    "zipCode" => $billingAddress->getPostcode(),
+                    "city" => $billingAddress->getCity(),
+                    "country" => $billingAddress->getCountryCode()
+                ],
+                "shippingAddress" => [
+                    "lastName" => $billingAddress->getLastName(),
+                    "firstName" => $billingAddress->getFirstName(),
+                    "address" => $billingAddress->getStreet(),
+                    "zipCode" => $billingAddress->getPostcode(),
+                    "city" => $billingAddress->getCity(),
+                    "country" => $billingAddress->getCountryCode()
+                ]
+            ]
+        ];
+
+        if ($type === 'TRD' && $order instanceof MealVoucherableInterface) {
+            /** @var $order MealVoucherableInterface */
+            $requestData['json']['eligibleAmount'] = [
+                'TRD' => $order->getMealVoucherCompatibleAmount(),
+            ];
+        }
+
+        return $requestData;
     }
 
     /**
@@ -84,6 +99,7 @@ final class PaygreenBridge
     {
         $phpVersion = phpversion();
         $syliusVersion = SyliusKernel::VERSION;
+
         return array(
             "Accept" => "application/json",
             "Content-Type" => "application/json",
