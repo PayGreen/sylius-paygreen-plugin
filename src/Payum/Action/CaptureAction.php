@@ -71,8 +71,6 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
         // Set the notified url to handle the IPN
         $targetUrl = str_replace('http://', 'https://', $notifyToken->getTargetUrl());
 
-        $response = null;
-
         try {
             $payment_type = $this->api->getPaymentRequest()->getPaymentType();
 

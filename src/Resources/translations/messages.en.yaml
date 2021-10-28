@@ -6,4 +6,5 @@ paygreen:
             payment_type:
                 name: Payment type
                 CB: Bank card
-                TRD: Dematerialized Restaurant Tickets
+                TRD: Meal Voucher
+            meal_voucher_compatible: Meal Voucher compatible
