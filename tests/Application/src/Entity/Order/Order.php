@@ -16,4 +16,24 @@ use Sylius\Component\Core\Model\Order as BaseOrder;
 class Order extends BaseOrder implements MealVoucherableInterface
 {
     use MealVoucherableTrait;
+
+    public function getMealVoucherCompatibleAmount(): int
+    {
+        $amount = 0;
+
+        foreach ($this->items as $item) {
+            /** @var $variant ProductVariantInterface */
+            $variant = $item->getVariant();
+
+            if ($variant->isMealVoucherCompatible()) {
+                $amount += $item->getTotal();
+            }
+        }
+
+        if ($amount > 0) {
+            $amount += $this->getShippingTotal();
+        }
+
+        return $amount;
+    }
 }
