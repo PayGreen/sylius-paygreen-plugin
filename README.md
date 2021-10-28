@@ -46,8 +46,10 @@ PAYGREEN_URL_API=https://paygreen.fr/api/
 
 ## Cookbook
 
-- [How to display the amount payable in meal voucher in the basket?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-display-the-amount-payable-in-meal-voucher-in-the-basket.md)
+- [How to display the amount payable in meal voucher in cart?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-display-the-amount-payable-in-meal-voucher-in-cart.md)
 - [How to display if the product is payable in meal voucher or not?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-display-if-the-product-is-payable-in-meal-voucher-or-not.md)
+- [How to make delivery payable via meal voucher?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-make-delivery-payable-via-meal-voucher.md)
+- [How to hide the meal ticket payment if it is not available for this cart?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-hide-the-meal-voucher-payment-method-if-it-is-not-available-for-this-cart.md)
 
 ## Contribution
 

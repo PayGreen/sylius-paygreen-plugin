@@ -2,28 +2,32 @@
 
 <container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="app.sylius_payment" class="Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder">
+        <service id="paygreen.gateway_factory" class="Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder">
             <argument>Paygreen\SyliusPaygreenPlugin\Payum\PaygreenPaymentGatewayFactory</argument>
             <tag name="payum.gateway_factory_builder" factory="sylius_payment" />
         </service>
         <service id="Paygreen\SyliusPaygreenPlugin\Form\Type\PaygreenGatewayConfigurationType">
-            <tag name="sylius.gateway_configuration_type" type="sylius_payment" label="PayGreen Payment" />
+            <tag name="sylius.gateway_configuration_type" type="paygreen" label="PayGreen Payment" />
             <tag name="form.type" />
         </service>
         <service id="Paygreen\SyliusPaygreenPlugin\Payum\Action\StatusAction" public="true">
             <argument type="service" id="sylius.http_client" />
             <argument type="service" id="monolog.logger" />
-            <tag name="payum.action" factory="sylius_payment" alias="payum.action.status" />
+            <tag name="payum.action" factory="paygreen" alias="payum.action.status" />
         </service>
         <service id="Paygreen\SyliusPaygreenPlugin\Payum\Action\CaptureAction" public="true">
             <argument type="service" id="sylius.http_client" />
             <argument type="service" id="monolog.logger" />
             <argument type="service" id="payum" />
-            <tag name="payum.action" factory="sylius_payment" alias="payum.action.capture" />
+            <tag name="payum.action" factory="paygreen" alias="payum.action.capture" />
         </service>
         <service id="Paygreen\SyliusPaygreenPlugin\Payum\Action\NotifyAction" public="true">
             <argument type="service" id="monolog.logger" />
-            <tag name="payum.action" factory="sylius_payment" alias="payum.notify.capture" />
+            <tag name="payum.action" factory="paygreen" alias="payum.notify.capture" />
+        </service>
+
+        <service id="Paygreen\SyliusPaygreenPlugin\Form\Extension\ProductVariantTypeExtension">
+            <tag name="form.type_extension" extended_type="Sylius\Bundle\ProductBundle\Form\Type\ProductVariantType" />
         </service>
 
         <service id="Paygreen\SyliusPaygreenPlugin\Form\Extension\ProductVariantTypeExtension">

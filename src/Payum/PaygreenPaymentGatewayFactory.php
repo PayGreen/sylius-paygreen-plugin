@@ -13,8 +13,8 @@ final class PaygreenPaymentGatewayFactory extends GatewayFactory
     protected function populateConfig(ArrayObject $config): void
     {
         $config->defaults([
-            'payum.factory_name' => 'sylius_payment',
-            'payum.factory_title' => 'Sylius Payment',
+            'payum.factory_name' => 'paygreen',
+            'payum.factory_title' => 'Paygreen Payment',
             'payum.action.api.payment_response' => new Action\Api\PaymentResponseAction(),
         ]);
 
