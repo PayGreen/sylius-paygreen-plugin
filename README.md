@@ -19,13 +19,13 @@ Require the plugin :
 composer require paygreen/sylius-paygreen-plugin
 ```
 
-1. Your `ProductVariant` entity needs to implement de MealVoucherAwareInterface and use the MealVoucherAwareTrait.
-2. Your `Order` entity needs to implement de MealVoucherableInterface and use the MealVoucherableTrait.
+1. Your `ProductVariant` entity needs to implement de `MealVoucherAwareInterface` and use the `MealVoucherAwareTrait`.
+2. Your `Order` entity needs to implement de `MealVoucherableInterface` and use the `MealVoucherableTrait`.
 3. You need to run a diff of your doctrine's migrations: `bin/console doctrine:migrations:diff`. Don't forget to run it! (`bin/console doctrine:migrations:migrate`)
 4. Copy the template (we update the Product and ProductVariant forms):
    ```
    mkdir -p templates/bundles/SyliusAdminBundle
-   cp -Rv vendor/paygreen/sylius-paygreen-plugin/src/Resources/views/SyliusAdminBundle/ templates/bundles/SyliusAdminBundle/
+   cp -Rv vendor/paygreen/sylius-paygreen-plugin/src/Resources/views/SyliusAdminBundle/ templates/bundles/
    ```
 
 ## Configuration
