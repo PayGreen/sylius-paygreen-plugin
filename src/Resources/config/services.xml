@@ -4,7 +4,7 @@
     <services>
         <service id="paygreen.gateway_factory" class="Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder">
             <argument>Paygreen\SyliusPaygreenPlugin\Payum\PaygreenPaymentGatewayFactory</argument>
-            <tag name="payum.gateway_factory_builder" factory="sylius_payment" />
+            <tag name="payum.gateway_factory_builder" factory="paygreen" />
         </service>
         <service id="Paygreen\SyliusPaygreenPlugin\Form\Type\PaygreenGatewayConfigurationType">
             <tag name="sylius.gateway_configuration_type" type="paygreen" label="PayGreen Payment" />
