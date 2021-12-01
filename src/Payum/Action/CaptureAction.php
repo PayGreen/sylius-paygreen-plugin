@@ -150,6 +150,14 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
         );
     }
 
+    /**
+     * @param SyliusPaymentInterface $payment
+     * @param OrderInterface $order
+     * @param string $paymentType
+     * @param string $notifiedUrl
+     * @param null|null $returnedUrl
+     * @return PaymentOrder
+     */
     private function buildPaymentOrder(
         SyliusPaymentInterface $payment,
         OrderInterface $order,
