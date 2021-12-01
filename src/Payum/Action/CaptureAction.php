@@ -94,19 +94,19 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
             if ($response !== null) {
                 $this->logger->alert("Response: " . $response->getBody()->getContents());
             }
-        }
+        } finally {
+            // Get URL from the response and redirect the customer
+            if ($response !== null) {
+                $content = json_decode($response->getBody()->getContents(), true);
+                $url = $content['data']['url'];
+                $pid = $content['data']['id'];
 
-        // Get URL from the response and redirect the customer
-        if ($response !== null) {
-            $content = json_decode($response->getBody()->getContents(), true);
-            $url = $content['data']['url'];
-            $pid = $content['data']['id'];
+                // Set the PID in order to retrieve easily the transaction in the StatusAction
+                $payment->setDetails(['pid' => $pid]);
 
-            // Set the PID in order to retrieve easily the transaction in the StatusAction
-            $payment->setDetails(['pid' => $pid]);
-
-            // Redirect the customer to the PayGreen payment page
-            throw new HttpPostRedirect($url);
+                // Redirect the customer to the PayGreen payment page
+                throw new HttpPostRedirect($url);
+            }
         }
     }
 
