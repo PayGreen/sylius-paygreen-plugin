@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Action;
 
+use Paygreen\Sdk\Core\Environment;
+use Paygreen\Sdk\Payment\V2\PaymentClient;
 use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
+use Paygreen\SyliusPaygreenPlugin\Payum\Bridge\PaygreenBridge;
 use Paygreen\SyliusPaygreenPlugin\Types\TransactionStatus;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
+use Payum\Core\Exception\UnsupportedApiException;
 use Payum\Core\Request\GetStatusInterface;
 use Psr\Log\LoggerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
+use Symfony\Component\HttpClient\Psr18Client;
 
 final class StatusAction extends AbstractApiAction implements ActionInterface
 {
@@ -22,10 +26,13 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
      */
     protected $logger;
 
-    /** @var Client */
+    /** @var Psr18Client */
     private $client;
 
-    public function __construct(Client $client, LoggerInterface $logger)
+    /** @var PaymentClient */
+    protected $api;
+
+    public function __construct(Psr18Client $client, LoggerInterface $logger)
     {
         $this->client = $client;
         $this->logger = $logger;
@@ -50,13 +57,7 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
 
             try {
                 // Ask Paygreen api to get the transaction status
-                $response = $this->client->request(
-                    'GET',
-                    $this->api->getBaseUrl() . '/payins/transaction/' . $pid,
-                    array(
-                        "headers" => $this->api->createHeader()
-                    )
-                );
+                $response = $this->api->getTransaction($pid);
 
             } catch (RequestException $exception) {
                 $this->logger->alert("Exception request");
@@ -67,10 +68,10 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
                 }
             } finally {
                 if ($response !== null) {
-                    $content = $response->getBody()->getContents();
-                    $contentArray = json_decode($content, true);
+                    $content = json_decode($response->getBody()->getContents(), true);
+
                     // Get the transaction status from Paygreen api
-                    $status = $contentArray["data"]["result"]["status"];
+                    $status = $content["data"]["result"]["status"];
 
                     // Set the order status
                     switch ($status) {
@@ -110,5 +111,21 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
             $request instanceof GetStatusInterface &&
             $request->getModel() instanceof SyliusPaymentInterface
             ;
+    }
+
+    public function setApi($api): void
+    {
+        if (!$api instanceof PaygreenBridge) {
+            throw new UnsupportedApiException('Not supported. Expected an instance of ' . PaygreenBridge::class);
+        }
+
+        $environment = new Environment(
+            $api->getPaymentRequest()->getPublicKey(),
+            $api->getPaymentRequest()->getPrivateKey(),
+            'SANDBOX',
+            2
+        );
+
+        $this->api = new PaymentClient($this->client, $environment, $this->logger);
     }
 }
