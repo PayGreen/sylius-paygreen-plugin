@@ -179,7 +179,7 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
         $orderSdk->setCustomer($customer);
         $orderSdk->setBillingAddress($billingAddress);
         $orderSdk->setShippingAddress($shippingAddress);
-        $orderSdk->setReference($order->getId());
+        $orderSdk->setReference("{$order->getNumber()}-{$order->getPayments()->count()}");
         $orderSdk->setAmount($payment->getAmount());
         $orderSdk->setCurrency('EUR');
 
