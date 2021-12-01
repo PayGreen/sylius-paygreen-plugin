@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace Paygreen\SyliusPaygreenPlugin\Payum;
+
 use InvalidArgumentException;
 
 final class PaygreenSdk
@@ -50,7 +51,7 @@ final class PaygreenSdk
     public function getParam($key): string
     {
         $parameters = $this->parameters;
-        if(!array_key_exists($key, $parameters)) {
+        if (!array_key_exists($key, $parameters)) {
             throw new InvalidArgumentException('Parameter ' . $key . ' does not exist.');
         }
 
@@ -66,8 +67,8 @@ final class PaygreenSdk
     {
         $parameters = $this->parameters;
 
-        foreach($httpRequest as $key=>$value) {
-            $parameters[$key]=$value;
+        foreach($httpRequest as $key => $value) {
+            $parameters[$key] = $value;
         }
 
         $this->parameters = $parameters;

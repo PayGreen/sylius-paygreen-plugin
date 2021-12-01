@@ -36,8 +36,13 @@ final class PaygreenBridge
      * @param string $targetUrl
      * @return array
      */
-    public function createPaymentForm(OrderInterface $order, int $amount, string $type, string $afterUrl, string $targetUrl) : array
-    {
+    public function createPaymentForm(
+        OrderInterface $order,
+        int $amount,
+        string $type,
+        string $afterUrl,
+        string $targetUrl
+    ) : array {
         $customer = $order->getCustomer();
         $billingAddress = $order->getBillingAddress();
 

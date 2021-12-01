@@ -20,6 +20,7 @@
     "prefer-stable" : true,
     "require": {
         "php": "^7.3 || ^8.0",
+        "nyholm/psr7": "^1.4",
         "paygreen/paygreen-sdk": "dev-develop",
         "sylius/sylius": "~1.8 || ~1.9 || ~1.10"
     },
