@@ -1,6 +1,7 @@
 /vendor/
 /node_modules/
 /composer.lock
+/auth.json
 
 /etc/build/*
 !/etc/build/.gitignore
