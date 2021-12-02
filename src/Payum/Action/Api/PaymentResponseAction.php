@@ -3,13 +3,19 @@
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Action\Api;
 
 use ArrayAccess;
+use Paygreen\SyliusPaygreenPlugin\Payum\PaymentRequest;
 use Paygreen\SyliusPaygreenPlugin\Payum\Request\PaymentResponse;
+use Payum\Core\Action\ActionInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
+use Payum\Core\GatewayAwareInterface;
+use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Request\GetHttpRequest;
 
-class PaymentResponseAction extends AbstractApiAction
+class PaymentResponseAction implements ActionInterface, GatewayAwareInterface
 {
+    use GatewayAwareTrait;
+
     /**
      * @inheritdoc
      */
@@ -22,7 +28,7 @@ class PaymentResponseAction extends AbstractApiAction
 
         $this->gateway->execute($httpRequest = new GetHttpRequest());
 
-        $paymentResponse = $this->api->getPaymentRequest();
+        $paymentResponse = new PaymentRequest();
         $paymentResponse->setResponse($httpRequest->request);
 
         $model['pid'] = $paymentResponse->getParam("pid");

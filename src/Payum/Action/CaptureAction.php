@@ -5,20 +5,16 @@ declare(strict_types=1);
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Action;
 
 use Exception;
-use Paygreen\Sdk\Core\Environment;
+use Paygreen\Sdk\Core\Exception\ConstraintViolationException;
 use Paygreen\Sdk\Payment\V2\Model\Address;
 use Paygreen\Sdk\Payment\V2\Model\Customer;
 use Paygreen\Sdk\Payment\V2\Model\Order;
 use Paygreen\Sdk\Payment\V2\Model\PaymentOrder;
-use Paygreen\Sdk\Payment\V2\PaymentClient;
-use Paygreen\SyliusPaygreenPlugin\Payum\Bridge\PaygreenBridge;
-use GuzzleHttp\Exception\RequestException;
+use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Exception\UnsupportedApiException;
 use Payum\Core\GatewayAwareInterface;
-use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Payum;
 use Payum\Core\Security\TokenInterface;
 use Psr\Log\LoggerInterface;
@@ -29,24 +25,8 @@ use Payum\Core\Reply\HttpPostRedirect;
 use Symfony\Component\HttpClient\Psr18Client;
 
 
-final class CaptureAction implements ActionInterface, ApiAwareInterface, GatewayAwareInterface
+final class CaptureAction extends AbstractApiAction implements ActionInterface, ApiAwareInterface, GatewayAwareInterface
 {
-    use GatewayAwareTrait;
-
-    /** @var Psr18Client */
-    private $client;
-
-    /** @var PaygreenBridge */
-    private $api;
-
-    /** @var PaymentClient */
-    private $paymentClient;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
     /**
      * @var Payum
      */
@@ -54,9 +34,9 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
 
     public function __construct(Psr18Client $client, LoggerInterface $logger, Payum $payum)
     {
-        $this->client = $client;
-        $this->logger = $logger;
         $this->payum = $payum;
+
+        parent::__construct($client, $logger);
     }
 
     public function execute($request): void
@@ -81,11 +61,15 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
         $targetUrl = $notifyToken->getTargetUrl();
 
         try {
-            $payment_type = $this->api->getPaymentRequest()->getPaymentType();
+            $payment_type = $this->api->getPaymentType();
             $paymentOrder = $this->buildPaymentOrder($payment, $order, $payment_type, $targetUrl, $afterUrl);
 
             // Create the payment link via PayGreen api
             $response = $this->paymentClient->createCashPayment($paymentOrder);
+        } catch (ConstraintViolationException $exception) {
+            $this->logger->alert("Constraint violation exception.");
+
+            dd($exception->getViolationMessages());
         } catch (Exception $exception) {
             $this->logger->alert("Exception capture action request.");
 
@@ -118,31 +102,13 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
         ;
     }
 
-    public function setApi($api): void
-    {
-        if (!$api instanceof PaygreenBridge) {
-            throw new UnsupportedApiException('Not supported. Expected an instance of ' . PaygreenBridge::class);
-        }
-
-        $environment = new Environment(
-            $api->getPaymentRequest()->getPublicKey(),
-            $api->getPaymentRequest()->getPrivateKey(),
-            'SANDBOX',
-            2
-        );
-
-        $this->paymentClient = new PaymentClient($this->client, $environment, $this->logger);
-
-        $this->api = $api;
-    }
-
     /**
      * @param string $gatewayName
      * @param object $model
      *
      * @return TokenInterface
      */
-    private function createNotifyToken($gatewayName, $model)
+    private function createNotifyToken(string $gatewayName, object $model) : TokenInterface
     {
         return $this->payum->getTokenFactory()->createNotifyToken(
             $gatewayName,
@@ -155,21 +121,21 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
      * @param OrderInterface $order
      * @param string $paymentType
      * @param string $notifiedUrl
-     * @param null|null $returnedUrl
+     * @param null|string $returnedUrl
      * @return PaymentOrder
      */
     private function buildPaymentOrder(
         SyliusPaymentInterface $payment,
         OrderInterface $order,
-        $paymentType,
-        $notifiedUrl,
-        $returnedUrl = null
+        string $paymentType,
+        string $notifiedUrl,
+        ?string $returnedUrl = null
     ) {
         $customer = new Customer();
         $customer->setId($order->getCustomer()->getId());
         $customer->setEmail($order->getCustomer()->getEmail());
-        $customer->setFirstname($order->getCustomer()->getFirstName());
-        $customer->setLastname($order->getCustomer()->getLastName());
+        $customer->setFirstname($order->getBillingAddress()->getFirstName());
+        $customer->setLastname($order->getBillingAddress()->getLastName());
 
         $shippingAddress = new Address();
         $shippingAddress->setStreetLineOne($order->getShippingAddress()->getStreet());
