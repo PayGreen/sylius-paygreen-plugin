@@ -35,11 +35,9 @@ class PaymentResponseAction implements ActionInterface, GatewayAwareInterface
 
         // Allows you to retrieve parameters directly from the url response from Paygreen
         if ($paymentResponse->isSuccessful()) {
-            //$this->log("Payment response success");
             $model['status'] = 1;
         }
         else {
-            //$this->log("Payment response refused");
             $model['status'] = 0;
         }
 
