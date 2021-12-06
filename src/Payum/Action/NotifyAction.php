@@ -37,10 +37,10 @@ class NotifyAction implements ActionInterface, GatewayAwareInterface
     {
         RequestNotSupportedException::assertSupports($this, $request);
 
-        $details = ArrayObject::ensureArrayObject($request->getModel());
+        $model = ArrayObject::ensureArrayObject($request->getModel());
 
         // Get the IPN and set the Payment response
-        $this->gateway->execute(new PaymentResponse($details));
+        $this->gateway->execute(new PaymentResponse($model));
     }
 
     /**

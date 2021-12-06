@@ -6,7 +6,7 @@ namespace Paygreen\SyliusPaygreenPlugin\Payum;
 
 use InvalidArgumentException;
 
-final class PaymentRequest
+final class PaymentResponse
 {
     /** @var array */
     private $parameters = array();

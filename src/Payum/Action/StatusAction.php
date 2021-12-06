@@ -7,6 +7,7 @@ namespace Paygreen\SyliusPaygreenPlugin\Payum\Action;
 use Exception;
 use Paygreen\Sdk\Core\Exception\ConstraintViolationException;
 use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
+use Paygreen\SyliusPaygreenPlugin\Payum\Request\PaymentRequest;
 use Paygreen\SyliusPaygreenPlugin\Types\TransactionStatus;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
@@ -20,10 +21,13 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
     {
         RequestNotSupportedException::assertSupports($this, $request);
 
+        $this->gateway->execute(new PaymentRequest($request->getModel()));
+
         /** @var SyliusPaymentInterface $payment */
         $payment = $request->getModel();
 
         $details = $payment->getDetails();
+
         // Retrieve the PID of the transaction
         $pid = $details['pid'];
 
