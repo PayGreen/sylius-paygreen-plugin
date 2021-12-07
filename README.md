@@ -63,9 +63,15 @@ $ (cd tests/Application && APP_ENV=test bin/console assets:install public)
 
 $ (cd tests/Application && APP_ENV=test bin/console doctrine:database:create)
 $ (cd tests/Application && APP_ENV=test bin/console doctrine:schema:create)
+$ (cd tests/Application && APP_ENV=test bin/console sylius:fixtures:load)
 ```
 
 To be able to setup a plugin's database, remember to configure you database credentials in `tests/Application/.env` and `tests/Application/.env.test`.
+
+### Start local server
+```bash
+$ (cd tests/Application && APP_ENV=test php -S localhost:8080 -t public)
+```
 
 ### Running plugin tests
 
