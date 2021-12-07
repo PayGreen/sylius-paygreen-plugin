@@ -2,6 +2,8 @@
 
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Action\Api;
 
+use Paygreen\Sdk\Core\Environment;
+use Paygreen\Sdk\Payment\V2\PaymentClient;
 use Paygreen\SyliusPaygreenPlugin\Payum\Bridge\PaygreenBridge;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
@@ -10,10 +12,21 @@ use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpClient\Psr18Client;
 
 abstract class AbstractApiAction implements ActionInterface, GatewayAwareInterface, ApiAwareInterface, LoggerAwareInterface
 {
     use GatewayAwareTrait;
+
+    /**
+     * @var Psr18Client
+     */
+    private $client;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * @var PaygreenBridge
@@ -21,21 +34,28 @@ abstract class AbstractApiAction implements ActionInterface, GatewayAwareInterfa
     protected $api;
 
     /**
-     * @var LoggerInterface
+     * @var PaymentClient
      */
-    private $logger;
+    protected $paymentClient;
 
+    public function __construct(Psr18Client $client, LoggerInterface $logger)
+    {
+        $this->client = $client;
+        $this->logger = $logger;
+    }
 
     /**
      * @inheritDoc
      */
-    public function setApi($api) : void
+    public function setApi($api): void
     {
         if (!$api instanceof PaygreenBridge) {
-            throw new UnsupportedApiException('Not supported.');
+            throw new UnsupportedApiException('Not supported. Expected an instance of ' . PaygreenBridge::class);
         }
 
         $this->api = $api;
+
+        $this->buildPaymentClient();
     }
 
     /**
@@ -58,5 +78,17 @@ abstract class AbstractApiAction implements ActionInterface, GatewayAwareInterfa
         }
 
         $this->logger->info($message);
+    }
+
+    private function buildPaymentClient()
+    {
+        $environment = new Environment(
+            $this->api->getPublicKey(),
+            $this->api->getPrivateKey(),
+            (string) getenv('PAYGREEN_API_SERVER'),
+            2
+        );
+
+        $this->paymentClient = new PaymentClient($this->client, $environment, $this->logger);
     }
 }
