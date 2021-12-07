@@ -4,33 +4,18 @@ declare(strict_types=1);
 
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Action;
 
+use Exception;
+use Paygreen\Sdk\Core\Exception\ConstraintViolationException;
 use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
 use Paygreen\SyliusPaygreenPlugin\Types\TransactionStatus;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Request\GetStatusInterface;
-use Psr\Log\LoggerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
 
 final class StatusAction extends AbstractApiAction implements ActionInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /** @var Client */
-    private $client;
-
-    public function __construct(Client $client, LoggerInterface $logger)
-    {
-        $this->client = $client;
-        $this->logger = $logger;
-    }
-
     public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
@@ -50,27 +35,26 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
 
             try {
                 // Ask Paygreen api to get the transaction status
-                $response = $this->client->request(
-                    'GET',
-                    $this->api->getBaseUrl() . '/payins/transaction/' . $pid,
-                    array(
-                        "headers" => $this->api->createHeader()
-                    )
-                );
+                $response = $this->paymentClient->getTransaction($pid);
+            } catch (ConstraintViolationException $exception) {
+                $this->logger->alert("Constraint violation exception.");
 
-            } catch (RequestException $exception) {
-                $this->logger->alert("Exception request");
+                dd($exception->getViolationMessages());
+            } catch (Exception $exception) {
+                $this->logger->alert("Exception request.");
+
                 $response = $exception->getResponse();
                 $request->markUnknown();
+
                 if ($response !== null) {
                     $this->logger->alert("Response: " . $response->getBody()->getContents());
                 }
             } finally {
                 if ($response !== null) {
-                    $content = $response->getBody()->getContents();
-                    $contentArray = json_decode($content, true);
+                    $content = json_decode($response->getBody()->getContents(), true);
+
                     // Get the transaction status from Paygreen api
-                    $status = $contentArray["data"]["result"]["status"];
+                    $status = $content["data"]["result"]["status"];
 
                     // Set the order status
                     switch ($status) {

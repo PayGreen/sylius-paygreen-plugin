@@ -11,7 +11,7 @@
             <tag name="form.type" />
         </service>
         <service id="Paygreen\SyliusPaygreenPlugin\Payum\Action\StatusAction" public="true">
-            <argument type="service" id="sylius.http_client" />
+            <argument type="service" id="psr18.http_client" />
             <argument type="service" id="monolog.logger" />
             <tag name="payum.action" factory="paygreen" alias="payum.action.status" />
         </service>
