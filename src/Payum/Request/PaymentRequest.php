@@ -6,7 +6,7 @@ namespace Paygreen\SyliusPaygreenPlugin\Payum\Request;
 
 use Payum\Core\Request\Generic;
 
-class PaymentResponse extends Generic
+class PaymentRequest extends Generic
 {
 
 }

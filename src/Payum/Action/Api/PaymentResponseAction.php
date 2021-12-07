@@ -3,8 +3,8 @@
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Action\Api;
 
 use ArrayAccess;
-use Paygreen\SyliusPaygreenPlugin\Payum\PaymentRequest;
-use Paygreen\SyliusPaygreenPlugin\Payum\Request\PaymentResponse;
+use Paygreen\SyliusPaygreenPlugin\Payum\PaymentResponse;
+use Paygreen\SyliusPaygreenPlugin\Payum\Request\PaymentRequest;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
@@ -21,25 +21,23 @@ class PaymentResponseAction implements ActionInterface, GatewayAwareInterface
      */
     public function execute($request) : void
     {
-        /** @var PaymentResponse $request */
+        /** @var PaymentRequest $request */
         RequestNotSupportedException::assertSupports($this, $request);
 
         $model = ArrayObject::ensureArrayObject($request->getModel());
 
         $this->gateway->execute($httpRequest = new GetHttpRequest());
 
-        $paymentResponse = new PaymentRequest();
-        $paymentResponse->setResponse($httpRequest->request);
+        $paymentResponse = new PaymentResponse();
+        $paymentResponse->setResponse($httpRequest->query);
 
         $model['pid'] = $paymentResponse->getParam("pid");
 
         // Allows you to retrieve parameters directly from the url response from Paygreen
         if ($paymentResponse->isSuccessful()) {
-            //$this->log("Payment response success");
             $model['status'] = 1;
         }
         else {
-            //$this->log("Payment response refused");
             $model['status'] = 0;
         }
 
@@ -51,7 +49,7 @@ class PaymentResponseAction implements ActionInterface, GatewayAwareInterface
      */
     public function supports($request)
     {
-        return $request instanceof PaymentResponse
+        return $request instanceof PaymentRequest
             && $request->getModel() instanceof ArrayAccess;
     }
 }

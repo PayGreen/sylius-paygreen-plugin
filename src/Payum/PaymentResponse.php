@@ -6,8 +6,11 @@ namespace Paygreen\SyliusPaygreenPlugin\Payum;
 
 use InvalidArgumentException;
 
-
+<<<<<<< HEAD:src/Payum/PaymentRequest.php
+final class PaymentRequest
+=======
 final class PaymentResponse
+>>>>>>> feature/fix-order-validation:src/Payum/PaymentResponse.php
 {
     /** @var array */
     private $parameters = array();
