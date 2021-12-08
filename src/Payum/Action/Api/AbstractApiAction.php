@@ -2,8 +2,8 @@
 
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Action\Api;
 
-use Paygreen\Sdk\Core\Environment;
-use Paygreen\Sdk\Payment\V2\PaymentClient;
+use Paygreen\Sdk\Payment\V2\Client;
+use Paygreen\Sdk\Payment\V2\Environment;
 use Paygreen\SyliusPaygreenPlugin\Payum\Bridge\PaygreenBridge;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
@@ -34,7 +34,7 @@ abstract class AbstractApiAction implements ActionInterface, GatewayAwareInterfa
     protected $api;
 
     /**
-     * @var PaymentClient
+     * @var Client
      */
     protected $paymentClient;
 
@@ -89,6 +89,6 @@ abstract class AbstractApiAction implements ActionInterface, GatewayAwareInterfa
             2
         );
 
-        $this->paymentClient = new PaymentClient($this->client, $environment, $this->logger);
+        $this->paymentClient = new Client($this->client, $environment, $this->logger);
     }
 }

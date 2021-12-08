@@ -21,7 +21,7 @@
     "require": {
         "php": "^7.3 || ^8.0",
         "nyholm/psr7": "^1.4",
-        "paygreen/paygreen-sdk": "dev-develop",
+        "paygreen/paygreen-php": "^1.0.3",
         "sylius/sylius": "~1.8 || ~1.9 || ~1.10"
     },
     "require-dev": {
@@ -87,11 +87,5 @@
         "post-create-project-cmd": [
             "php bin/create_node_symlink.php"
         ]
-    },
-    "repositories": {
-        "gitlab.com/13794205": {
-            "type": "composer",
-            "url": "https://gitlab.com/api/v4/group/13794205/-/packages/composer/packages.json"
-        }
     }
 }

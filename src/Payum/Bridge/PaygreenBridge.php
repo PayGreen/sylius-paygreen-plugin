@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Bridge;
 
-use Paygreen\SyliusPaygreenPlugin\Payum\PaymentRequest;
-
 final class PaygreenBridge
 {
     /** @var string */
