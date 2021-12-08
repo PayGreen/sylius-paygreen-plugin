@@ -84,9 +84,15 @@ final class PaygreenBridge
 
         if ($type === 'TRD' && $order instanceof MealVoucherableInterface) {
             /** @var $order MealVoucherableInterface */
-            $requestData['json']['eligibleAmount'] = [
-                'TRD' => $order->getMealVoucherCompatibleAmount(),
-            ];
+            if ($order->getMealVoucherCompatibleAmount() > 0) {
+                $requestData['json']['eligibleAmount'] = [
+                    'TRD' => $order->getMealVoucherCompatibleAmount(),
+                ];
+            }
+            else {
+                $requestData['json']['paymentType'] = 'CB';
+            }
+
         }
 
         return $requestData;
