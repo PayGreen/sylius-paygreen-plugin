@@ -61,8 +61,8 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
         $targetUrl = $notifyToken->getTargetUrl();
 
         try {
-            $payment_type = $this->api->getPaymentType();
-            $paymentOrder = $this->buildPaymentOrder($payment, $order, $payment_type, $targetUrl, $afterUrl);
+            $paymentType = $this->api->getPaymentType();
+            $paymentOrder = $this->buildPaymentOrder($payment, $order, $paymentType, $targetUrl, $afterUrl);
 
             // Create the payment link via PayGreen api
             $response = $this->paymentClient->createCashPayment($paymentOrder);
