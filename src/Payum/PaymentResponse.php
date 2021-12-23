@@ -29,7 +29,12 @@ final class PaymentResponse
 
     public function isSuccessful(): bool
     {
-        return $this->getParam('result') == "SUCCESSED";
+        try {
+            return $this->getParam('result') == "SUCCESSED";
+        }
+        catch (InvalidArgumentException $e) {
+            return false;
+        }
     }
 
     public function setResponse(array $httpRequest) : void

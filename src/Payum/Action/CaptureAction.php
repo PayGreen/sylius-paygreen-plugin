@@ -6,10 +6,12 @@ namespace Paygreen\SyliusPaygreenPlugin\Payum\Action;
 
 use Exception;
 use Paygreen\Sdk\Core\Exception\ConstraintViolationException;
+use Paygreen\Sdk\Payment\V2\Enum\PaymentTypeEnum;
 use Paygreen\Sdk\Payment\V2\Model\Address;
 use Paygreen\Sdk\Payment\V2\Model\Customer;
 use Paygreen\Sdk\Payment\V2\Model\Order;
 use Paygreen\Sdk\Payment\V2\Model\PaymentOrder;
+use Paygreen\SyliusPaygreenPlugin\Entity\MealVoucherableInterface;
 use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
@@ -165,6 +167,17 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
 
         if (!empty($returnedUrl)) {
             $paymentOrder->setReturnedUrl($returnedUrl);
+        }
+
+        if ($paymentType === PaymentTypeEnum::TRD && $order instanceof MealVoucherableInterface) {
+            /** @var $order MealVoucherableInterface */
+            if ($order->getMealVoucherCompatibleAmount() > 0) {
+                $paymentOrder->setEligibleAmount([PaymentTypeEnum::TRD => $order->getMealVoucherCompatibleAmount()]);
+            }
+            else {
+                $paymentOrder->setPaymentType(PaymentTypeEnum::CB);
+            }
+
         }
 
         return $paymentOrder;
