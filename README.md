@@ -38,10 +38,10 @@ Connect your Paygreen account to the module with your public key and your privat
 
 You will have to select `Bank card` or `Meal Voucher` according to your needs. 
 
-In the `.env` file, you have to configure the `PAYGREEN_URL_API` (production or sandbox) depending on your customer account.
+In the `.env` file, you have to configure the `PAYGREEN_API_SERVER` (PRODUCTION or SANDBOX) depending on your customer account.
 
 ```
-PAYGREEN_URL_API=https://paygreen.fr/api/
+PAYGREEN_API_SERVER=PRODUCTION
 ```
 
 ## Cookbook
