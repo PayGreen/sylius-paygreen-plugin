@@ -19,7 +19,7 @@ final class PaygreenPaymentGatewayFactory extends GatewayFactory
         ]);
 
         $config['payum.api'] = function (ArrayObject $config) : PaygreenBridge {
-            return new PaygreenBridge($config['public_key'], $config['private_key'], $config['payment_type']);
+            return new PaygreenBridge($config['public_key'], $config['private_key'], $config['payment_type'], $config['display_mode']);
         };
     }
 }

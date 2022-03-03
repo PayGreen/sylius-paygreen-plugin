@@ -6,6 +6,7 @@ namespace Paygreen\SyliusPaygreenPlugin\Payum\Action;
 
 use Exception;
 use Paygreen\Sdk\Core\Exception\ConstraintViolationException;
+use Paygreen\Sdk\Payment\V2\Enum\PaymentTypeEnum;
 use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
 use Paygreen\SyliusPaygreenPlugin\Payum\Request\PaymentRequest;
 use Paygreen\SyliusPaygreenPlugin\Types\TransactionStatus;
@@ -20,6 +21,7 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
     public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
+        /** @var GetStatusInterface $request */
 
         $this->gateway->execute(new PaymentRequest($request->getModel()));
 
@@ -59,6 +61,7 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
 
                     // Get the transaction status from Paygreen api
                     $status = $content["data"]["result"]["status"];
+                    $paymentType = $content["data"]["paymentType"];
 
                     // Set the order status
                     switch ($status) {
@@ -71,8 +74,17 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
                             $request->markCaptured();
                             break;
 
+                        case TransactionStatus::STATUS_WAITING:
+                            if ($paymentType === PaymentTypeEnum::TRD) {
+                                $request->markCaptured();
+                            }
+                            else {
+                                $request->markPending();
+                            }
+                            break;
+
                         case TransactionStatus::STATUS_PENDING:
-                            $request->markNew();
+                            $request->markPending();
                             break;
 
                         case TransactionStatus::STATUS_REFUNDED:

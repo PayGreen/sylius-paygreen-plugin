@@ -32,11 +32,9 @@ composer require paygreen/sylius-paygreen-plugin
 
 ![Gateway configuration](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/gateway_configuration.png?raw=true)
 
-The module configuration is located in the Payment method section of the admin panel.
+Connect your Paygreen account with your public key and your private key.
 
-Connect your Paygreen account to the module with your public key and your private key.
-
-You will have to select `Bank card` or `Meal Voucher` according to your needs. 
+> To activate the in site payment interface, the In Site module must be activated via your PayGreen back office. Moreover, you must be in HTTPS.
 
 In the `.env` file, you have to configure the `PAYGREEN_API_SERVER` (PRODUCTION or SANDBOX) depending on your customer account.
 
