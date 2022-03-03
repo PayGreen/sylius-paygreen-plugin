@@ -1,0 +1,15 @@
+{% extends '@SyliusShop/Checkout/layout.html.twig' %}
+
+{% block content %}
+
+    <div class="ui centered grid">
+        <iframe src="{{ executeUrl ~ '?display=insite' }}"
+                style="
+                    width: 450px;
+                    max-width: 100%;
+                    min-height: 600px;
+                    border: none;"
+        ></iframe>
+    </div>
+
+{% endblock %}
