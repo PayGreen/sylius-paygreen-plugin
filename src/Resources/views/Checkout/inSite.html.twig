@@ -3,13 +3,7 @@
 {% block content %}
 
     <div class="ui centered grid">
-        <iframe src="{{ executeUrl ~ '?display=insite' }}"
-                style="
-                    width: 450px;
-                    max-width: 100%;
-                    min-height: 600px;
-                    border: none;"
-        ></iframe>
+        {% include '@PaygreenSyliusPaygreenPlugin/Checkout/_iframe.html.twig' %}
     </div>
 
 {% endblock %}
