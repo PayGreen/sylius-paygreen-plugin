@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Action;
 
 use Exception;
+use Http\Client\Exception\HttpException;
 use Paygreen\Sdk\Core\Exception\ConstraintViolationException;
 use Paygreen\Sdk\Payment\V2\Enum\PaymentTypeEnum;
 use Paygreen\Sdk\Payment\V2\Model\Address;
@@ -13,12 +14,16 @@ use Paygreen\Sdk\Payment\V2\Model\Order;
 use Paygreen\Sdk\Payment\V2\Model\PaymentOrder;
 use Paygreen\SyliusPaygreenPlugin\Entity\MealVoucherableInterface;
 use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
+use Paygreen\SyliusPaygreenPlugin\Payum\Bridge\PaygreenBridge;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
+use Payum\Core\Reply\HttpResponse;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\Payum;
+use Payum\Core\Request\RenderTemplate;
 use Payum\Core\Security\TokenInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
@@ -41,6 +46,9 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
         parent::__construct($client, $logger);
     }
 
+    /**
+     * @throws Exception
+     */
     public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
@@ -64,34 +72,44 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
 
         try {
             $paymentType = $this->api->getPaymentType();
-            $paymentOrder = $this->buildPaymentOrder($payment, $order, $paymentType, $targetUrl, $afterUrl);
+            $paymentOrder = $this->createPaymentOrder($payment, $order, $paymentType, $targetUrl, $afterUrl);
 
             // Create the payment link via PayGreen api
             $response = $this->paymentClient->createCashPayment($paymentOrder);
         } catch (ConstraintViolationException $exception) {
-            $this->logger->alert("Constraint violation exception.");
-
-            dd($exception->getViolationMessages());
-        } catch (Exception $exception) {
-            $this->logger->alert("Exception capture action request.");
-
+            $this->logger->alert("Constraint violation exception.", $exception->getViolationMessages());
+        } catch (HttpException $exception) {
             $response = $exception->getResponse();
-
-            if ($response !== null) {
-                $this->logger->alert("Response: " . $response->getBody()->getContents());
-            }
+            $this->logger->alert("Exception capture action request: " . $response->getBody()->getContents());
+        } catch (Exception $e) {
+            $this->logger->error($e->getMessage(), $e->getTrace());
         } finally {
             // Get URL from the response and redirect the customer
-            if ($response !== null) {
-                $content = json_decode($response->getBody()->getContents(), true);
-                $url = $content['data']['url'];
-                $pid = $content['data']['id'];
 
-                // Set the PID in order to retrieve easily the transaction in the StatusAction
-                $payment->setDetails(['pid' => $pid]);
+            $content = json_decode($response->getBody()->getContents(), true);
 
-                // Redirect the customer to the PayGreen payment page
-                throw new HttpPostRedirect($url);
+            if ($content['success'] === false) {
+                throw new Exception($content['message']);
+            }
+
+            $executeUrl = $content['data']['url'];
+            $pid = $content['data']['id'];
+
+            // Set the PID in order to retrieve easily the transaction in the StatusAction
+            $payment->setDetails(['pid' => $pid]);
+
+            // Redirect the customer to the PayGreen payment page
+            if ($this->api->getDisplayMode() === PaygreenBridge::DISPLAY_MODE_INSITE) {
+                $renderTemplate = new RenderTemplate('@PaygreenSyliusPaygreenPlugin/Checkout/inSite.html.twig', [
+                    'executeUrl' => $executeUrl,
+                ]);
+
+                $this->gateway->execute($renderTemplate);
+
+                throw new HttpResponse($renderTemplate->getResult());
+            }
+            else {
+                throw new HttpPostRedirect($executeUrl);
             }
         }
     }
@@ -126,13 +144,14 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
      * @param null|string $returnedUrl
      * @return PaymentOrder
      */
-    private function buildPaymentOrder(
+    private function createPaymentOrder(
         SyliusPaymentInterface $payment,
         OrderInterface $order,
         string $paymentType,
         string $notifiedUrl,
         ?string $returnedUrl = null
-    ) {
+    ): PaymentOrder
+    {
         $customer = new Customer();
         $customer->setId($order->getCustomer()->getId());
         $customer->setEmail($order->getCustomer()->getEmail());

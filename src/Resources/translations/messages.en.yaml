@@ -5,6 +5,10 @@ paygreen:
             private_key: Private key
             payment_type:
                 name: Payment type
-                CB: Bank card
-                TRD: Meal Voucher
+                cb: Bank card
+                trd: Meal Voucher
+            display_mode:
+                name: Display mode
+                redirect: Redirect
+                insite: In site
             meal_voucher_compatible: Meal Voucher compatible

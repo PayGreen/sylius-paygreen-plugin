@@ -32,16 +32,14 @@ composer require paygreen/sylius-paygreen-plugin
 
 ![Gateway configuration](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/gateway_configuration.png?raw=true)
 
-The module configuration is located in the Payment method section of the admin panel.
+Connect your Paygreen account with your public key and your private key.
 
-Connect your Paygreen account to the module with your public key and your private key.
+> To activate the in site payment interface, the In Site module must be activated via your PayGreen back office. Moreover, you must be in HTTPS.
 
-You will have to select `Bank card` or `Meal Voucher` according to your needs. 
-
-In the `.env` file, you have to configure the `PAYGREEN_URL_API` (production or sandbox) depending on your customer account.
+In the `.env` file, you have to configure the `PAYGREEN_API_SERVER` (PRODUCTION or SANDBOX) depending on your customer account.
 
 ```
-PAYGREEN_URL_API=https://paygreen.fr/api/
+PAYGREEN_API_SERVER=PRODUCTION
 ```
 
 ## Cookbook
@@ -50,6 +48,7 @@ PAYGREEN_URL_API=https://paygreen.fr/api/
 - [How to display if the product is payable in meal voucher or not?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-display-if-the-product-is-payable-in-meal-voucher-or-not.md)
 - [How to make delivery payable via meal voucher?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-make-delivery-payable-via-meal-voucher.md)
 - [How to hide the meal ticket payment if it is not available for this cart?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-hide-the-meal-voucher-payment-method-if-it-is-not-available-for-this-cart.md)
+- [How to customize "insite" display mode template?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-customize-insite-display-mode.md)
 
 ## Contribution
 

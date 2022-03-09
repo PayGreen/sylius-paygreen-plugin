@@ -5,6 +5,10 @@ paygreen:
             private_key: Clé privée
             payment_type:
                 name: Types de payment
-                CB: Carte bancaire
-                TRD: Titres-Restaurant Dématérialisés
+                cb: Carte bancaire
+                trd: Titres-Restaurant Dématérialisés
+            display_mode:
+                name: Mode d'affichage
+                redirect: Page de paiement déportée
+                insite: Interface de paiement in site
             meal_voucher_compatible: Compatible Titres-Restaurant Dématérialisés

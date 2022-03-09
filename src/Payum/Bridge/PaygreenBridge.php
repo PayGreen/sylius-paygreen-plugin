@@ -6,6 +6,9 @@ namespace Paygreen\SyliusPaygreenPlugin\Payum\Bridge;
 
 final class PaygreenBridge
 {
+    public const DISPLAY_MODE_REDIRECT = 'REDIRECT';
+    public const DISPLAY_MODE_INSITE = 'INSITE';
+
     /** @var string */
     private $publicKey;
 
@@ -13,13 +16,17 @@ final class PaygreenBridge
     private $privateKey;
 
     /** @var string */
-    private $payment_type;
+    private $paymentType;
 
-    public function __construct(string $publicKey, string $privateKey, string $payment_type)
+    /** @var string */
+    private $displayMode;
+
+    public function __construct(string $publicKey, string $privateKey, string $paymentType, string $displayMode)
     {
         $this->publicKey = $publicKey;
         $this->privateKey = $privateKey;
-        $this->payment_type = $payment_type;
+        $this->paymentType = $paymentType;
+        $this->displayMode = $displayMode;
     }
 
     public function getPublicKey(): string
@@ -34,6 +41,11 @@ final class PaygreenBridge
 
     public function getPaymentType(): string
     {
-        return $this->payment_type;
+        return $this->paymentType;
+    }
+
+    public function getDisplayMode(): string
+    {
+        return $this->displayMode;
     }
 }
