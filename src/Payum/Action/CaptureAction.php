@@ -6,7 +6,6 @@ namespace Paygreen\SyliusPaygreenPlugin\Payum\Action;
 
 use Exception;
 use Http\Client\Exception\HttpException;
-use Paygreen\Sdk\Core\Exception\ConstraintViolationException;
 use Paygreen\Sdk\Payment\V2\Enum\PaymentTypeEnum;
 use Paygreen\Sdk\Payment\V2\Model\Address;
 use Paygreen\Sdk\Payment\V2\Model\Customer;
@@ -23,7 +22,6 @@ use Payum\Core\GatewayAwareInterface;
 use Payum\Core\Payum;
 use Payum\Core\Request\RenderTemplate;
 use Payum\Core\Security\TokenInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
@@ -76,8 +74,6 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
 
             // Create the payment link via PayGreen api
             $response = $this->paymentClient->createCashPayment($paymentOrder);
-        } catch (ConstraintViolationException $exception) {
-            $this->logger->alert("Constraint violation exception.", $exception->getViolationMessages());
         } catch (HttpException $exception) {
             $response = $exception->getResponse();
             $this->logger->alert("Exception capture action request: " . $response->getBody()->getContents());
