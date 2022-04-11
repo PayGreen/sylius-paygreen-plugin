@@ -44,8 +44,6 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
                 $response = $this->paymentClient->getTransaction($pid);
             } catch (ConstraintViolationException $exception) {
                 $this->logger->alert("Constraint violation exception.");
-
-                dd($exception->getViolationMessages());
             } catch (Exception $exception) {
                 $this->logger->alert("Exception request.");
 
@@ -84,7 +82,7 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
                             break;
 
                         case TransactionStatus::STATUS_PENDING:
-                            $request->markPending();
+                            $request->markNew();
                             break;
 
                         case TransactionStatus::STATUS_REFUNDED:
