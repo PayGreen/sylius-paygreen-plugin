@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Paygreen\SyliusPaygreenPlugin\Payum\Action;
 
 use Exception;
-use Paygreen\Sdk\Core\Exception\ConstraintViolationException;
 use Paygreen\Sdk\Payment\V2\Enum\PaymentTypeEnum;
 use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
 use Paygreen\SyliusPaygreenPlugin\Payum\Request\PaymentRequest;
@@ -42,10 +41,6 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
             try {
                 // Ask Paygreen api to get the transaction status
                 $response = $this->paymentClient->getTransaction($pid);
-            } catch (ConstraintViolationException $exception) {
-                $this->logger->alert("Constraint violation exception.");
-
-                dd($exception->getViolationMessages());
             } catch (Exception $exception) {
                 $this->logger->alert("Exception request.");
 
@@ -84,7 +79,7 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
                             break;
 
                         case TransactionStatus::STATUS_PENDING:
-                            $request->markPending();
+                            $request->markNew();
                             break;
 
                         case TransactionStatus::STATUS_REFUNDED:
