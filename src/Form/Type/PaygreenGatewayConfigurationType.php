@@ -24,6 +24,8 @@ final class PaygreenGatewayConfigurationType extends AbstractType
             'choices' => [
                 'paygreen.sylius_plugin.form.payment_type.CB' => 'CB',
                 'paygreen.sylius_plugin.form.payment_type.TRD' => 'TRD',
+                'paygreen.sylius_plugin.form.payment_type.SWILE' => 'SWILE',
+                'paygreen.sylius_plugin.form.payment_type.RESTOFLASH' => 'RESTOFLASH',
             ],
             'constraints' => [
                 new NotBlank(),

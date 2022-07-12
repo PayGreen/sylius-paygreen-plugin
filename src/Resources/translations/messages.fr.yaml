@@ -6,5 +6,7 @@ paygreen:
             payment_type:
                 name: Types de payment
                 CB: Carte bancaire
-                TRD: Titres-Restaurant Dématérialisés
+                TRD: Conecs
+                SWILE: Swile
+                RESTOFLASH: Restoflash
             meal_voucher_compatible: Compatible Titres-Restaurant Dématérialisés

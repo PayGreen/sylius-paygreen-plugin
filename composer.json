@@ -28,7 +28,7 @@
         "php": "^7.3 || ^8.0",
         "ext-json": "*",
         "nyholm/psr7": "^1.4",
-        "paygreen/paygreen-php": "^1.0.4",
+        "paygreen/paygreen-php": "^1.1",
         "sylius/sylius": "~1.8 || ~1.9 || ~1.10",
         "symfony/http-client": "^5.4"
     },

@@ -13,6 +13,7 @@ use Paygreen\Sdk\Payment\V2\Model\Order;
 use Paygreen\Sdk\Payment\V2\Model\PaymentOrder;
 use Paygreen\SyliusPaygreenPlugin\Entity\MealVoucherableInterface;
 use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
+use Paygreen\SyliusPaygreenPlugin\Payum\Enum\MealVoucherTypeEnum;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
@@ -68,6 +69,7 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
 
             // Create the payment link via PayGreen api
             $response = $this->paymentClient->createCashPayment($paymentOrder);
+
         } catch (ConstraintViolationException $exception) {
             $this->logger->alert("Constraint violation exception.");
 
@@ -84,6 +86,8 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
             // Get URL from the response and redirect the customer
             if ($response !== null) {
                 $content = json_decode($response->getBody()->getContents(), true);
+                var_dump($response);
+                die();
                 $url = $content['data']['url'];
                 $pid = $content['data']['id'];
 
@@ -161,7 +165,7 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
 
         $paymentOrder = new PaymentOrder();
         $paymentOrder->setType('CASH');
-        $paymentOrder->setPaymentType($paymentType);
+        $paymentOrder->setPaymentType("TRD");
         $paymentOrder->setOrder($orderSdk);
         $paymentOrder->setNotifiedUrl($notifiedUrl);
 
@@ -169,10 +173,11 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
             $paymentOrder->setReturnedUrl($returnedUrl);
         }
 
-        if ($paymentType === PaymentTypeEnum::TRD && $order instanceof MealVoucherableInterface) {
+        if (in_array($paymentType, MealVoucherTypeEnum::getMealVoucherTypes()) && $order instanceof MealVoucherableInterface) {
+
             /** @var $order MealVoucherableInterface */
             if ($order->getMealVoucherCompatibleAmount() > 0) {
-                $paymentOrder->setEligibleAmount([PaymentTypeEnum::TRD => $order->getMealVoucherCompatibleAmount()]);
+                $paymentOrder->setEligibleAmount(['TRD' => $order->getMealVoucherCompatibleAmount()]);
             }
             else {
                 $paymentOrder->setPaymentType(PaymentTypeEnum::CB);
