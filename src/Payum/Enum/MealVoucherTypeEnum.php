@@ -7,7 +7,7 @@ namespace Paygreen\SyliusPaygreenPlugin\Payum\Enum;
 class MealVoucherTypeEnum
 {
     const RESTOFLASH = 'RESTOFLASH';
-    const SWILE = 'SWILE';
+    const LUNCHR = 'LUNCHR';
     const TRD = 'TRD';
 
     /**
@@ -17,7 +17,7 @@ class MealVoucherTypeEnum
     {
         return [
             self::RESTOFLASH,
-            self::SWILE,
+            self::LUNCHR,
             self::TRD,
         ];
     }

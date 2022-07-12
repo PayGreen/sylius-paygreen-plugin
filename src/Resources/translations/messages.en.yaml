@@ -7,6 +7,6 @@ paygreen:
                 name: Payment type
                 CB: Bank card
                 TRD: Conecs
-                SWILE: Swile
+                LUNCHR: Swile
                 RESTOFLASH: Restoflash
             meal_voucher_compatible: Meal Voucher compatible
