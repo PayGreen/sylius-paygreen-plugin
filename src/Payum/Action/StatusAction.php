@@ -19,82 +19,80 @@ final class StatusAction extends AbstractApiAction implements ActionInterface
 {
     public function execute($request): void
     {
-        RequestNotSupportedException::assertSupports($this, $request);
         /** @var GetStatusInterface $request */
+        RequestNotSupportedException::assertSupports($this, $request);
 
         $this->gateway->execute(new PaymentRequest($request->getModel()));
 
         /** @var SyliusPaymentInterface $payment */
         $payment = $request->getModel();
-
-        $details = $payment->getDetails();
+        $paymentDetails = $payment->getDetails();
 
         // Retrieve the PID of the transaction
-        $pid = $details['pid'];
+        $pid = $paymentDetails['pid'];
 
         /** @var OrderInterface $order */
         $order = $payment->getOrder();
 
-        // Check if the order is already paid or not
-        if($order->getPaymentState() !== "paid") {
+        // Check if the order is already paid
+        if($order->getPaymentState() === "paid") {
+            return;
+        }
 
-            try {
-                // Ask Paygreen api to get the transaction status
-                $response = $this->paymentClient->getTransaction($pid);
-            } catch (Exception $exception) {
-                $this->logger->alert("Exception request.");
+        try {
+            $response = $this->paymentClient->getTransaction($pid);
 
-                $response = $exception->getResponse();
-                $request->markUnknown();
+            if ($response->getStatusCode() === 200) {
+                $content = json_decode($response->getBody()->getContents());
 
-                if ($response !== null) {
-                    $this->logger->alert("Response: " . $response->getBody()->getContents());
-                }
-            } finally {
-                if ($response !== null) {
-                    $content = json_decode($response->getBody()->getContents(), true);
+                $paymentType = $content->data->paymentType;
 
-                    // Get the transaction status from Paygreen api
-                    $status = $content["data"]["result"]["status"];
-                    $paymentType = $content["data"]["paymentType"];
+                switch ($content->data->result->status) {
+                    case TransactionStatus::STATUS_REFUSED:
+                    case TransactionStatus::STATUS_CANCELLED:
+                        $request->markCanceled();
+                        break;
 
-                    // Set the order status
-                    switch ($status) {
-                        case TransactionStatus::STATUS_REFUSED:
-                        case TransactionStatus::STATUS_CANCELLED:
-                            $request->markCanceled();
-                            break;
+                    case TransactionStatus::STATUS_SUCCEEDED:
+                        $request->markCaptured();
+                        break;
 
-                        case TransactionStatus::STATUS_SUCCEEDED:
+                    case TransactionStatus::STATUS_WAITING:
+                        if ($paymentType === PaymentTypeEnum::TRD) {
                             $request->markCaptured();
-                            break;
+                        }
+                        else {
+                            $request->markPending();
+                        }
+                        break;
 
-                        case TransactionStatus::STATUS_WAITING:
-                            if ($paymentType === PaymentTypeEnum::TRD) {
-                                $request->markCaptured();
-                            }
-                            else {
-                                $request->markPending();
-                            }
-                            break;
+                    case TransactionStatus::STATUS_PENDING:
+                        $request->markNew();
+                        break;
 
-                        case TransactionStatus::STATUS_PENDING:
-                            $request->markNew();
-                            break;
+                    case TransactionStatus::STATUS_REFUNDED:
+                        $request->markRefunded();
+                        break;
 
-                        case TransactionStatus::STATUS_REFUNDED:
-                            $request->markRefunded();
-                            break;
+                    case TransactionStatus::STATUS_EXPIRED:
+                        $request->markExpired();
+                        break;
 
-                        case TransactionStatus::STATUS_EXPIRED:
-                            $request->markExpired();
-                            break;
-
-                        default:
-                            $request->markUnknown();
-                            break;
-                    }
+                    default:
+                        $request->markUnknown();
+                        break;
                 }
+            }
+            else throw new Exception("Invalid API transaction data");
+
+        } catch (Exception $exception) {
+            $this->logger->error("PayGreen getTransaction error: {$exception->getMessage()} ({$exception->getCode()})");
+
+            $response = $exception->getResponse();
+            $request->markUnknown();
+
+            if ($response !== null) {
+                $this->logger->error("Response: " . $response->getBody()->getContents());
             }
         }
     }

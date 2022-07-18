@@ -5,8 +5,10 @@ paygreen:
             private_key: Private key
             payment_type:
                 name: Payment type
-                cb: Bank card
-                trd: Meal Voucher
+                CB: Bank card
+                TRD: Conecs
+                LUNCHR: Swile
+                RESTOFLASH: Restoflash
             display_mode:
                 name: Display mode
                 redirect: Redirect
