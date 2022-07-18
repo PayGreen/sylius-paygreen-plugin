@@ -14,6 +14,7 @@ use Paygreen\Sdk\Payment\V2\Model\PaymentOrder;
 use Paygreen\SyliusPaygreenPlugin\Entity\MealVoucherableInterface;
 use Paygreen\SyliusPaygreenPlugin\Payum\Action\Api\AbstractApiAction;
 use Paygreen\SyliusPaygreenPlugin\Payum\Bridge\PaygreenBridge;
+use Paygreen\SyliusPaygreenPlugin\Payum\Enum\MealVoucherTypeEnum;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
 use Payum\Core\Reply\HttpResponse;
@@ -184,10 +185,10 @@ final class CaptureAction extends AbstractApiAction implements ActionInterface, 
             $paymentOrder->setReturnedUrl($returnedUrl);
         }
 
-        if ($paymentType === PaymentTypeEnum::TRD && $order instanceof MealVoucherableInterface) {
+        if (in_array($paymentType, MealVoucherTypeEnum::getMealVoucherTypes()) && $order instanceof MealVoucherableInterface) {
             /** @var $order MealVoucherableInterface */
             if ($order->getMealVoucherCompatibleAmount() > 0) {
-                $paymentOrder->setEligibleAmount([PaymentTypeEnum::TRD => $order->getMealVoucherCompatibleAmount()]);
+                $paymentOrder->setEligibleAmount([$paymentType => $order->getMealVoucherCompatibleAmount()]);
             }
             else {
                 $paymentOrder->setPaymentType(PaymentTypeEnum::CB);

@@ -5,8 +5,10 @@ paygreen:
             private_key: Clé privée
             payment_type:
                 name: Types de payment
-                cb: Carte bancaire
-                trd: Titres-Restaurant Dématérialisés
+                CB: Carte bancaire
+                TRD: Conecs
+                LUNCHR: Swile
+                RESTOFLASH: Restoflash
             display_mode:
                 name: Mode d'affichage
                 redirect: Page de paiement déportée

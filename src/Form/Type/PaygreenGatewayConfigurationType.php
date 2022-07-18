@@ -18,13 +18,17 @@ final class PaygreenGatewayConfigurationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            // Add public and private to the form
             ->add('public_key', TextType::class, ['label' => 'paygreen.sylius_plugin.form.public_key'])
             ->add('private_key', TextType::class, ['label' => 'paygreen.sylius_plugin.form.private_key'])
+            // Allows the customer to choose the payment type of his button
             ->add('payment_type', ChoiceType::class, [
                 'label' => 'paygreen.sylius_plugin.form.payment_type.name',
                 'choices' => [
-                    'paygreen.sylius_plugin.form.payment_type.cb' => PaymentTypeEnum::CB,
-                    'paygreen.sylius_plugin.form.payment_type.trd' => PaymentTypeEnum::TRD,
+                    'paygreen.sylius_plugin.form.payment_type.CB' => PaymentTypeEnum::CB,
+                    'paygreen.sylius_plugin.form.payment_type.TRD' => PaymentTypeEnum::TRD,
+                    'paygreen.sylius_plugin.form.payment_type.LUNCHR' => 'LUNCHR',
+                    'paygreen.sylius_plugin.form.payment_type.RESTOFLASH' => PaymentTypeEnum::RESTOFLASH,
                 ],
                 'constraints' => [
                     new NotBlank(),
