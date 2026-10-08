@@ -1,22 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/8.5/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
          colors="true"
-         bootstrap="tests/Application/config/bootstrap.php">
+         cacheDirectory=".phpunit.cache">
     <testsuites>
-        <testsuite name="AcmeSyliusExamplePlugin Test Suite">
+        <testsuite name="PayGreen Sylius Payum Plugin">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-
-    <php>
-        <ini name="error_reporting" value="-1" />
-
-        <server name="KERNEL_CLASS_PATH" value="/tests/Application/AppKernel.php" />
-        <server name="IS_DOCTRINE_ORM_SUPPORTED" value="true" />
-
-        <env name="APP_ENV" value="test"/>
-        <env name="SHELL_VERBOSITY" value="-1" />
-    </php>
 </phpunit>

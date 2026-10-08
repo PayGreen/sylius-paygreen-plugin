@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Paygreen\SyliusPaygreenPlugin\Entity;
+namespace PayGreen\SyliusPayumPlugin\Entity;
 
 interface MealVoucherAwareInterface
 {

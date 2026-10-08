@@ -1,0 +1,11 @@
+paygreen_payment_return:
+    path: /payment/paygreen/return
+    methods: [GET, POST]
+    defaults:
+        _controller: PayGreen\SyliusPayumPlugin\Controller\ReturnController
+
+paygreen_payment_webhook:
+    path: /payment/paygreen/webhook
+    methods: [POST]
+    defaults:
+        _controller: PayGreen\SyliusPayumPlugin\Controller\WebhookController

@@ -1,93 +1,132 @@
-<p align="center">
-  <a href="https://paygreen.io/" target="_blank">
-    <img alt="paygreen logo" width="250px" src="https://paygreen.github.io/images/email/logo/paygreen/base.png" />
-  </a>
-</p>
-<p align="center">
-  <a href="https://sylius.com" target="_blank">
-      <img alt="sylius logo" width="250px" src="https://demo.sylius.com/assets/shop/img/logo.png" />
-  </a>
-</p>
+# Sylius PayGreen Payum Plugin
 
-<h1 align="center">Sylius payment module with <a target="_blank" href="https://paygreen.io/">Paygreen</a></h1>
+Fresh Sylius payment plugin skeleton for PayGreen hosted payment pages.
 
-## Installation
+The integration uses `paygreen/paygreen-php` as the only communication layer with PayGreen. The plugin builds SDK models, calls SDK client methods, and maps SDK response data back into Payum/Sylius payment details.
 
-Require the plugin :
+## Targets
 
-```bash
-composer require paygreen/sylius-paygreen-plugin
-```
+- Sylius `^1.14`, prepared for `^2.0`
+- Symfony `^6.4`, prepared for `^7.0`
+- PHP `^8.2`, prepared for PHP `8.3+`
 
-1. Your `ProductVariant` entity needs to implement de `MealVoucherAwareInterface` and use the `MealVoucherAwareTrait`.
-2. Your `Order` entity needs to implement de `MealVoucherableInterface` and use the `MealVoucherableTrait`.
-3. You need to run a diff of your doctrine's migrations: `bin/console doctrine:migrations:diff`. Don't forget to run it! (`bin/console doctrine:migrations:migrate`)
-4. Copy the template (we update the Product and ProductVariant forms):
-   ```
-   mkdir -p templates/bundles/SyliusAdminBundle
-   cp -Rv vendor/paygreen/sylius-paygreen-plugin/src/Resources/views/SyliusAdminBundle/ templates/bundles/
-   ```
+## Includes
+
+- Sylius plugin bundle skeleton
+- Payum gateway factory named `paygreen`
+- Sylius payment method configuration form
+- Payum capture, notify, and status actions
+- Sylius order/payment to PayGreen SDK `PaymentOrder` conversion
+- Redirect to PayGreen `hosted_payment_url`
+- Return controller skeleton
+- Webhook controller skeleton
+- PayGreen status mapping
+- Basic PHPUnit tests
 
 ## Configuration
 
-![Gateway configuration](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/gateway_configuration.png?raw=true)
+Register the bundle in the host application:
 
-Connect your Paygreen account with your public key and your private key.
-
-> To activate the in site payment interface, the In Site module must be activated via your PayGreen back office. Moreover, you must be in HTTPS.
-
-In the `.env` file, you have to configure the `PAYGREEN_API_SERVER` (PRODUCTION or SANDBOX) depending on your customer account.
-
-```
-PAYGREEN_API_SERVER=PRODUCTION
+```php
+// config/bundles.php
+return [
+    PayGreen\SyliusPayumPlugin\PayGreenSyliusPayumPlugin::class => ['all' => true],
+];
 ```
 
-## Cookbook
+Import routes:
 
-- [How to display the amount payable in meal voucher in cart?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-display-the-amount-payable-in-meal-voucher-in-cart.md)
-- [How to display if the product is payable in meal voucher or not?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-display-if-the-product-is-payable-in-meal-voucher-or-not.md)
-- [How to make delivery payable via meal voucher?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-make-delivery-payable-via-meal-voucher.md)
-- [How to hide the meal ticket payment if it is not available for this cart?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-hide-the-meal-voucher-payment-method-if-it-is-not-available-for-this-cart.md)
-- [How to customize "insite" display mode template?](https://github.com/PayGreen/sylius-paygreen-plugin/blob/master/doc/how-to-customize-insite-display-mode.md)
+```yaml
+# config/routes/paygreen.yaml
+paygreen_sylius_payum_plugin:
+    resource: '@PayGreenSyliusPayumPlugin/Resources/config/routes.yaml'
+```
 
-## Contribution
-
-### Installation:
+Install an HTTPlug-compatible HTTP client for the PayGreen SDK, for example:
 
 ```bash
-$ composer install
-$ (cd tests/Application && yarn install)
-$ (cd tests/Application && yarn build)
-$ (cd tests/Application && APP_ENV=test bin/console assets:install public)
-
-$ (cd tests/Application && APP_ENV=test bin/console doctrine:database:create)
-$ (cd tests/Application && APP_ENV=test bin/console doctrine:schema:create)
-$ (cd tests/Application && APP_ENV=test bin/console sylius:fixtures:load)
+composer require php-http/curl-client
 ```
 
-To be able to setup a plugin's database, remember to configure you database credentials in `tests/Application/.env` and `tests/Application/.env.test`.
+Then add a Sylius payment method using the `PayGreen` gateway and configure:
 
-### Start local server
+- Shop ID
+- Public key
+- Secret key
+- Environment
+
+### Webhook listener URL
+
+When a PayGreen payment method is saved, the plugin automatically registers or verifies the PayGreen webhook listener through the PayGreen SDK. It first calls the PayGreen API to find an existing listener for the generated webhook URL, then creates one when needed and stores the returned HMAC key in the gateway config.
+
+By default, the listener URL is generated from the Symfony route `paygreen_payment_webhook`. In local or proxied environments, you can override the public base URL with:
+
+```dotenv
+DEFAULT_LISTENER_URI=https://your-public-domain.example
+```
+
+If `DEFAULT_LISTENER_URI` has no path, the plugin appends the webhook route path automatically. You may also provide the full listener URL:
+
+```dotenv
+DEFAULT_LISTENER_URI=https://your-public-domain.example/payment/paygreen/webhook
+```
+
+The value is meant for environment configuration only; it is not displayed in the Sylius admin. If the generated listener URL is local (`localhost`, `127.0.0.1`, or `::1`), listener registration is skipped because PayGreen cannot call local URLs.
+
+## Meal vouchers
+
+Meal voucher eligibility is configured **per product variant**, exactly as in the
+previous PayGreen Sylius plugin. Flagging a variant as eligible adds its amount to
+the PayGreen `eligible_amounts` sent at payment time.
+
+### 1. Make your `ProductVariant` meal-voucher aware
+
+Have your Sylius product variant entity implement the plugin interface and use the
+provided trait:
+
+```php
+use PayGreen\SyliusPayumPlugin\Entity\MealVoucherAwareInterface;
+use PayGreen\SyliusPayumPlugin\Entity\MealVoucherAwareTrait;
+use Sylius\Component\Core\Model\ProductVariant as BaseProductVariant;
+
+class ProductVariant extends BaseProductVariant implements MealVoucherAwareInterface
+{
+    use MealVoucherAwareTrait;
+}
+```
+
+The trait adds a single `meal_voucher_compatible` boolean column (default `false`).
+
+### 2. Generate and run the Doctrine migration
+
 ```bash
-$ (cd tests/Application && APP_ENV=test php -S localhost:8080 -t public)
+bin/console doctrine:migrations:diff
+bin/console doctrine:migrations:migrate
 ```
 
-### Running plugin tests
+### 3. Set eligibility in the admin
 
-- PHPSpec
+No template override is required. As soon as your `ProductVariant` implements
+`MealVoucherAwareInterface`, the plugin automatically injects an **"Eligible for meal
+vouchers" checkbox** into the product variant form
+(`Catalog → Products → … → Variants`). Tick it on every variant that can be paid with
+meal vouchers.
 
-  ```bash
-  $ composer phpspec
-  ```
+> Note: eligibility lives on the **variant**, not the product. For a simple product,
+> Sylius edits its default variant, so the checkbox appears directly on the product
+> edit page.
 
-- Behat
+### How it works
 
-  ```bash
-  $ composer behat
-  ```
+When at least one order item uses an eligible variant, the plugin sends the summed
+amount in PayGreen V3 `eligible_amounts` under the **`food`** domain (the domain that
+groups meal voucher platforms such as `swile`, `restoflash` and `conecs`).
+`eligible_amounts` is keyed by domain (`ecommerce`, `travel`, `food`), not by
+platform. API calls still go only through `paygreen/paygreen-php`.
 
-- All tests (phpspec & behat)
+To read a variant's eligibility in your own templates:
 
-  ```bash
-  $ composer test
-  ```
+```twig
+{% set variant = product|sylius_resolve_variant %}
+{{ variant.mealVoucherCompatible ? 'Payable with meal vouchers' : '' }}
+```

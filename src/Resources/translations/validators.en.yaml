@@ -1,0 +1,4 @@
+paygreen:
+    gateway_configuration:
+        credentials_invalid: PayGreen authentication failed. Check the Shop ID, Secret key and Environment.
+        secret_key_required: Secret key is required.

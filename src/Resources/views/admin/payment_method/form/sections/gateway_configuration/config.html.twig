@@ -1,0 +1,40 @@
+{% set form = hookable_metadata.context.form %}
+
+{% if form.gatewayConfig.config is defined %}
+    <div class="col-12 col-md-6">
+        {{ form_row(form.gatewayConfig.config.shop_id) }}
+    </div>
+    <div class="col-12 col-md-6">
+        {{ form_row(form.gatewayConfig.config.public_key) }}
+    </div>
+    <div class="col-12 col-md-6">
+        {% set secretKeyId = form.gatewayConfig.config.secret_key.vars.id %}
+        {{ form_row(form.gatewayConfig.config.secret_key) }}
+        <button type="button" class="btn btn-sm btn-outline-secondary mt-1"
+                onclick="(function(btn){
+                    var input = document.getElementById('{{ secretKeyId }}');
+                    var show = input.type === 'password';
+                    input.type = show ? 'text' : 'password';
+                    btn.textContent = show ? '🙈 Hide' : '👁 Show';
+                    localStorage.setItem('paygreen_secret_key_visible', show ? '1' : '0');
+                })(this)">👁 Show</button>
+        <script>
+            (function () {
+                var input = document.getElementById('{{ secretKeyId }}');
+                if (!input) {
+                    return;
+                }
+                if (localStorage.getItem('paygreen_secret_key_visible') === '1') {
+                    input.type = 'text';
+                    var btn = input.closest('.col-12').querySelector('button');
+                    if (btn) {
+                        btn.textContent = '🙈 Hide';
+                    }
+                }
+            })();
+        </script>
+    </div>
+    <div class="col-12 col-md-6">
+        {{ form_row(form.gatewayConfig.config.environment_mode) }}
+    </div>
+{% endif %}

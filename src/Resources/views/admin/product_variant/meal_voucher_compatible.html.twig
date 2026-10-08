@@ -1,0 +1,15 @@
+{#
+ # Renders the PayGreen "eligible for meal vouchers" checkbox on the product
+ # variant form, wrapped in a dedicated PayGreen section so it stays clearly
+ # identifiable when other plugins add their own meal voucher fields.
+ #
+ # Used by both Sylius 1.x UI template events and Sylius 2.x Twig hooks; the
+ # guard keeps it safe when the field is absent (e.g. the ProductVariant entity
+ # does not implement MealVoucherAwareInterface).
+ #}
+{% if form is defined and form.mealVoucherCompatible is defined %}
+    <div class="ui segment">
+        <h4 class="ui dividing header">PayGreen</h4>
+        {{ form_row(form.mealVoucherCompatible) }}
+    </div>
+{% endif %}

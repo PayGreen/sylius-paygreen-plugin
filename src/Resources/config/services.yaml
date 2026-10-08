@@ -1,0 +1,77 @@
+parameters:
+    env(DEFAULT_LISTENER_URI): ''
+    paygreen.webhook.verify_status_via_api: false
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    PayGreen\SyliusPayumPlugin\:
+        resource: '../../'
+
+    PayGreen\SyliusPayumPlugin\Bridge\PayGreen\MealVoucherEligibilityCalculatorInterface:
+        alias: PayGreen\SyliusPayumPlugin\Bridge\PayGreen\MealVoucherEligibilityCalculator
+
+    PayGreen\SyliusPayumPlugin\Payum\Factory\PayGreenGatewayFactory:
+        public: true
+        tags:
+            - { name: payum.gateway_factory, factory: paygreen }
+
+    paygreen_sylius_payum_plugin.payum.gateway_factory_builder:
+        class: Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder
+        arguments:
+            - PayGreen\SyliusPayumPlugin\Payum\Factory\PayGreenGatewayFactory
+        tags:
+            - { name: payum.gateway_factory_builder, factory: paygreen }
+
+    PayGreen\SyliusPayumPlugin\Action\CaptureAction:
+        public: true
+        arguments:
+            $logger: '@monolog.logger.paygreen'
+        tags:
+            - { name: payum.action, factory: paygreen, alias: payum.action.capture }
+
+    PayGreen\SyliusPayumPlugin\Action\NotifyAction:
+        public: true
+        tags:
+            - { name: payum.action, factory: paygreen, alias: payum.action.notify }
+
+    PayGreen\SyliusPayumPlugin\Action\StatusAction:
+        public: true
+        tags:
+            - { name: payum.action, factory: paygreen, alias: payum.action.status }
+
+    PayGreen\SyliusPayumPlugin\Form\Type\PayGreenGatewayConfigurationType:
+        arguments:
+            $kernelEnvironment: '%kernel.environment%'
+        tags:
+            - { name: sylius.gateway_configuration_type, type: paygreen, label: PayGreen }
+            - { name: form.type }
+
+    PayGreen\SyliusPayumPlugin\Form\Extension\ProductVariantTypeExtension:
+        tags:
+            - { name: form.type_extension, extended_type: Sylius\Bundle\ProductBundle\Form\Type\ProductVariantType }
+
+    PayGreen\SyliusPayumPlugin\Controller\ReturnController:
+        public: true
+        arguments:
+            $logger: '@monolog.logger.paygreen'
+
+    PayGreen\SyliusPayumPlugin\Controller\WebhookController:
+        public: true
+        arguments:
+            $paymentRepository: '@sylius.repository.payment'
+            $entityManager: '@doctrine.orm.entity_manager'
+            $lockFactory: '@lock.factory'
+            $logger: '@monolog.logger.paygreen'
+            $verifyStatusViaApi: '%paygreen.webhook.verify_status_via_api%'
+            $webhookSecretConfigKey: 'webhook_secret'
+
+    PayGreen\SyliusPayumPlugin\EventListener\GatewayConfigSaveListener:
+        arguments:
+            $logger: '@monolog.logger.paygreen'
+            $defaultListenerUri: '%env(string:DEFAULT_LISTENER_URI)%'
+        tags:
+            - { name: kernel.event_listener, event: sylius.payment_method.post_create, method: onGatewayConfigSave }
+            - { name: kernel.event_listener, event: sylius.payment_method.post_update, method: onGatewayConfigSave }

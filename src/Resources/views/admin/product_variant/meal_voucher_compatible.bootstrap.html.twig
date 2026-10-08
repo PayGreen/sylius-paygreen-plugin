@@ -1,0 +1,13 @@
+{#
+ # Sylius 2.x (Bootstrap admin) variant of the PayGreen meal voucher section,
+ # rendered through Twig hooks on the product variant form. Mirrors the Sylius
+ # 1.x Semantic UI segment using a Bootstrap card.
+ #}
+{% if form is defined and form.mealVoucherCompatible is defined %}
+    <div class="card mb-3">
+        <div class="card-header">PayGreen</div>
+        <div class="card-body">
+            {{ form_row(form.mealVoucherCompatible) }}
+        </div>
+    </div>
+{% endif %}

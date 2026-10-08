@@ -1,16 +1,11 @@
 paygreen:
-    sylius_plugin:
-        form:
-            public_key: Clé publique
-            private_key: Clé privée
-            payment_type:
-                name: Types de payment
-                CB: Carte bancaire
-                TRD: Conecs
-                LUNCHR: Swile
-                RESTOFLASH: Restoflash
-            display_mode:
-                name: Mode d'affichage
-                redirect: Page de paiement déportée
-                insite: Interface de paiement in site
-            meal_voucher_compatible: Compatible Titres-Restaurant Dématérialisés
+    gateway_configuration:
+        shop_id: ID boutique
+        public_key: Cle publique
+        secret_key: Cle secrete
+        environment: Environnement
+        environment_sandbox: Sandbox
+        environment_production: Production
+        environment_recette: Recette (dev uniquement)
+    product_variant:
+        meal_voucher_compatible: Éligible aux titres-restaurant
